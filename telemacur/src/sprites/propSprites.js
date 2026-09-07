@@ -17,14 +17,18 @@ export const WEAPON_SPRITE = buildSprite(WEAPON_ROWS, {
   g: PALETTE.weaponGlow, s: PALETTE.luciastroPurple, d: PALETTE.luciastroPurpleDark,
 }, PX);
 
-const LEVER_ROWS = [
-  row(6, [['.', 2], ['k', 2], ['.', 2]]),
-  row(6, [['.', 2], ['k', 2], ['.', 2]]),
-  row(6, [['k', 6]]),
-  row(6, [['.', 1], ['b', 4], ['.', 1]]),
+// Razzo sparato da Luciastro contro Telemacur durante la traversata delle piattaforme.
+// Punta a sinistra (viaggia verso il giocatore, che si trova a ovest).
+const ROCKET_ROWS = [
+  row(10, [['.', 4], ['m', 4], ['.', 2]]),
+  row(10, [['n', 2], ['m', 6], ['.', 2]]),
+  row(10, [['n', 2], ['m', 4], ['f', 2], ['.', 2]]),
+  row(10, [['n', 2], ['m', 4], ['f', 2], ['.', 2]]),
+  row(10, [['n', 2], ['m', 6], ['.', 2]]),
+  row(10, [['.', 4], ['m', 4], ['.', 2]]),
 ];
-export const LEVER_SPRITE = buildSprite(LEVER_ROWS, {
-  k: PALETTE.metalDark, b: PALETTE.metalLight,
+export const ROCKET_SPRITE = buildSprite(ROCKET_ROWS, {
+  n: PALETTE.lavaOrange, m: PALETTE.metalMid, f: PALETTE.boosterFlame,
 }, PX);
 
 // La pizza e' disegnata direttamente con forme canvas (cerchi) invece che a griglia:

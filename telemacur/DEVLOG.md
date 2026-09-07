@@ -145,6 +145,31 @@ nuove funzionalita':
 
 Il gioco e' considerato completo per tutte e 4 le fasi richieste.
 
+## Modifiche su richiesta: boss finale piu' difficile e articolato
+Il boss e la fuga sono stati rivisti su richiesta diretta (non un'interpretazione mia):
+- Le piattaforme si rompono dopo **2 secondi** invece di 3.
+- Nel varco tra una piattaforma e la successiva sale e scende una **palla di lava**
+  (periodo ~1.7s): saltare mentre e' in alto costa la partita. E' evitabile saltando
+  subito dopo l'atterraggio, quando e' ancora bassa — non e' un ostacolo a caso, premia
+  chi osserva il ritmo prima di saltare.
+- I razzi di Luciastro NON sono piu' un pericolo sul pianeta (rimossi da `BossScene.js`):
+  su richiesta successiva, appaiono solo come scenografia nella cutscene di partenza
+  (`data/finale.js`, slide "nave nello spazio"), dove sfrecciano sullo sfondo senza
+  poter colpire nulla.
+- Dopo la 15a piattaforma non c'e' piu' una leva: si entra in un'**arena di tiro**.
+  Luciastro sale e scende a velocita' casuale (cambia ogni 0.8-1.8s); il tasto azione
+  spara un colpo che viaggia sempre alla stessa altezza (quella di partenza) — bisogna
+  aspettare che Luciastro sia allineato, non si puo' mirare con un solo tasto. 5 colpi
+  per sconfiggerlo. Nota tecnica: il controllo del colpo verifica il tratto percorso nel
+  frame (non solo la posizione istantanea), altrimenti ad alta velocita' un proiettile
+  puo' "bucare" la fascia di tiro tra un frame e l'altro senza mai risultare a contatto.
+- La fuga finale (`EscapeScene.js`) ora ha **10 secondi** invece di 30, la navicella e'
+  molto piu' lontana (da x=700 a x=1500 in coordinate di mondo) e piovono **meteoriti**
+  con un breve preavviso (ombra pulsante + sasso in caduta) che, se non schivati fermandosi
+  un istante, fanno fallire la fuga. Rimossa la raccolta dell'arma a meta' strada: dato
+  che ora la si usa gia' per sparare a Luciastro, farla anche raccogliere dopo non aveva
+  piu' senso narrativo.
+
 ## Nota per chi sviluppa
 `devserver.py` e' un server statico identico a `python -m http.server` ma disabilita la
 cache del browser: utile solo durante lo sviluppo, quando si modifica il codice e si

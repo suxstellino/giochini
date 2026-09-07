@@ -5,7 +5,7 @@ import { PALETTE } from '../sprites/palettes.js';
 import { createNaplesBackground, createFinishinisBackground } from '../sprites/backgrounds.js';
 import { TELEMACUR, BENZO, LUCIASTRO } from '../sprites/characterSprites.js';
 import { SHIP_STAGES, drawEngineFlames } from '../sprites/shipSprites.js';
-import { drawPizza, WEAPON_SPRITE } from '../sprites/propSprites.js';
+import { drawPizza, WEAPON_SPRITE, ROCKET_SPRITE } from '../sprites/propSprites.js';
 import { SaveManager } from '../engine/SaveManager.js';
 
 const naples = createNaplesBackground();
@@ -62,7 +62,7 @@ export function createDepartureSlides() {
       },
     },
     {
-      caption: 'Destinazione: pianeta Finishinis.',
+      caption: 'Luciastro ha sentito arrivare la navicella, e non e\' contento.',
       draw(ctx, w, h, t) {
         ctx.fillStyle = PALETTE.spaceBlack;
         ctx.fillRect(0, 0, w, h);
@@ -71,6 +71,17 @@ export function createDepartureSlides() {
           const x = (w - ((t * speed + i * 97) % w));
           ctx.fillStyle = PALETTE.starWhite;
           ctx.fillRect(x, (i * 53) % h, 3, 1);
+        }
+        // Missili sparati da lontano da Luciastro: qui sono solo scenografia (la
+        // navicella li schiva da sola), il vero pericolo arriva dopo, sul pianeta.
+        const rockets = [
+          { y: h * 0.28, speed: 300, offset: 0 },
+          { y: h * 0.5, speed: 380, offset: 260 },
+          { y: h * 0.72, speed: 260, offset: 520 },
+        ];
+        for (const rk of rockets) {
+          const x = (w + 120) - ((t * rk.speed + rk.offset) % (w + 300));
+          ctx.drawImage(ROCKET_SPRITE, x - ROCKET_SPRITE.width / 2, rk.y - ROCKET_SPRITE.height / 2);
         }
         const stageIndex = SaveManager.state.shipStage;
         const stage = SHIP_STAGES[stageIndex].sprite;

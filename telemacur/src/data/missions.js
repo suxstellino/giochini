@@ -57,13 +57,13 @@ export const MISSIONS = {
   mars: {
     id: 'mars',
     planetName: 'Marte',
-    objectiveLabel: 'Raccogli 50 monete (gialle + blu)',
+    objectiveLabel: 'Raccogli 40 monete (gialle + blu)',
     createBackground: createMarsBackground,
     createObstacles: () => ({
       ...makeObstacleSet(PALETTE.marsRust, PALETTE.marsDune, PALETTE.marsDune, PALETTE.marsRust),
       creature: makeCreature(PALETTE.marsRust, PALETTE.marsDune, PALETTE.scalinoTan, PALETTE.eyeGlow),
     }),
-    objective: { type: 'mixed', target: 50 },
+    objective: { type: 'mixed', target: 40 },
     coinSpawn: { yellow: 0.5, blue: 0.5, diamond: 0 },
     groundY: 460,
     baseSpeed: 290,
@@ -87,13 +87,13 @@ export const MISSIONS = {
   saturn: {
     id: 'saturn',
     planetName: 'Saturno',
-    objectiveLabel: 'Raccogli 70 monete (gialle + blu)',
+    objectiveLabel: 'Raccogli 50 monete (gialle + blu)',
     createBackground: createSaturnBackground,
     createObstacles: () => ({
       ...makeObstacleSet(PALETTE.saturnIceDark, PALETTE.saturnRingDark, PALETTE.saturnIce, PALETTE.saturnIceDark),
       creature: makeCreature(PALETTE.saturnIceDark, PALETTE.saturnIce, PALETTE.gasolioGrey, PALETTE.eyeGlow),
     }),
-    objective: { type: 'mixed', target: 70 },
+    objective: { type: 'mixed', target: 50 },
     coinSpawn: { yellow: 0.5, blue: 0.5, diamond: 0 },
     groundY: 460,
     baseSpeed: 300,
