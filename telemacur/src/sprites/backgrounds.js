@@ -102,25 +102,29 @@ export function createMoonBackground() {
 // Fondale generico: cielo a gradiente, eventuale "oggetto lontano" unico (una luna, gli
 // anelli di Saturno...) con parallasse propria, poi N livelli di feature ripetute.
 function makeBackground(cfg) {
+  // Il render generico basta a quasi tutti i pianeti; Saturno ne passa uno suo (per
+  // disegnare l'orizzonte dell'anello) che qui NON va sovrascritto dallo spread.
+  function defaultRender(ctx, scrollX, width, height, groundY = height - 60) {
+    const grad = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, this.skyTop);
+    grad.addColorStop(1, this.skyBottom);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, width, height);
+
+    if (this.farObject) {
+      const fx = this.farObject.x - scrollX * this.farObject.speedFactor;
+      const wrapped = ((fx % (width + 300)) + (width + 300)) % (width + 300) - 150;
+      this.farObject.draw(ctx, wrapped, this.farObject.y);
+    }
+
+    for (const layer of this.layers) {
+      renderLayer(ctx, layer, scrollX, width, height, groundY);
+    }
+  }
+
   return {
     ...cfg,
-    render(ctx, scrollX, width, height, groundY = height - 60) {
-      const grad = ctx.createLinearGradient(0, 0, 0, height);
-      grad.addColorStop(0, this.skyTop);
-      grad.addColorStop(1, this.skyBottom);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-
-      if (this.farObject) {
-        const fx = this.farObject.x - scrollX * this.farObject.speedFactor;
-        const wrapped = ((fx % (width + 300)) + (width + 300)) % (width + 300) - 150;
-        this.farObject.draw(ctx, wrapped, this.farObject.y);
-      }
-
-      for (const layer of this.layers) {
-        renderLayer(ctx, layer, scrollX, width, height, groundY);
-      }
-    },
+    render: cfg.render || defaultRender,
   };
 }
 
@@ -235,26 +239,67 @@ export function createSaturnBackground() {
     skyBottom: '#16222c',
     groundColor: PALETTE.saturnIce,
     groundLineColor: PALETTE.saturnIceDark,
-    farObject: {
-      x: 480, y: 150, speedFactor: 0.015,
-      draw(ctx, x, y) {
-        ctx.save();
-        ctx.globalAlpha = 0.8;
-        ctx.strokeStyle = PALETTE.saturnRing;
-        ctx.lineWidth = 10;
-        ctx.beginPath();
-        ctx.ellipse(x, y, 260, 60, -0.15, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.strokeStyle = PALETTE.saturnRingDark;
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.ellipse(x, y, 200, 46, -0.15, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      },
-    },
     layers: [ridges, iceChunks],
+    render(ctx, scrollX, width, height, groundY) {
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, this.skyTop);
+      grad.addColorStop(1, this.skyBottom);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Siamo SU una luna di Saturno, dentro il piano degli anelli: se ne vede solo il
+      // bordo enorme che sbuca all'orizzonte, non il pianeta intero a meta' cielo.
+      drawRingHorizon(ctx, width, groundY, scrollX);
+
+      for (const layer of this.layers) {
+        renderLayer(ctx, layer, scrollX, width, height, groundY);
+      }
+    },
   });
+}
+
+// L'anello e' un'unica fascia enorme vista quasi di taglio: si disegna come una serie
+// di archi molto larghi (il centro sta ben sotto il fondo dello schermo) e ruotati,
+// cosi' nel riquadro visibile taglia il cielo in diagonale, alto e imponente, invece
+// di essere un filo sottile appoggiato all'orizzonte.
+function drawRingHorizon(ctx, width, groundY, scrollX) {
+  const cx = width / 2 - scrollX * 0.02;
+  const HIDDEN = 780; // quanto il centro dell'ellisse enorme sta sotto il fondo dello schermo
+  const cy = groundY + HIDDEN;
+  const rx = width * 1.8;
+  const tilt = -0.34; // taglio diagonale, non un anello piatto sull'orizzonte
+  // riseAbove = altezza sopra la linea del terreno a cui arriva il bordo di ogni fascia
+  // (nel punto piu' alto della curva): valori grandi per dare senso di scala enorme.
+  const bands = [
+    { riseAbove: 40, color: PALETTE.saturnRingDark, w: 22, alpha: 0.5 },
+    { riseAbove: 85, color: PALETTE.saturnRing, w: 36, alpha: 0.55 },
+    { riseAbove: 140, color: PALETTE.saturnPlanetLight, w: 15, alpha: 0.4 },
+    { riseAbove: 185, color: PALETTE.saturnRingDark, w: 32, alpha: 0.5 },
+    { riseAbove: 240, color: PALETTE.saturnRing, w: 22, alpha: 0.4 },
+    { riseAbove: 285, color: PALETTE.saturnRingDark, w: 12, alpha: 0.35 },
+  ];
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, width, groundY);
+  ctx.clip();
+  for (const b of bands) {
+    ctx.strokeStyle = b.color;
+    ctx.lineWidth = b.w;
+    ctx.globalAlpha = b.alpha;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, HIDDEN + b.riseAbove, tilt, Math.PI, Math.PI * 2);
+    ctx.stroke();
+  }
+  // Un filo di luce sottile lungo il bordo piu' vicino, per leggere il profilo senza
+  // che risulti troppo acceso (l'utente lo voleva "piu' tenue").
+  ctx.strokeStyle = PALETTE.saturnPlanetLight;
+  ctx.globalAlpha = 0.45;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, HIDDEN + bands[0].riseAbove, tilt, Math.PI, Math.PI * 2);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
 // --- Nettuno -----------------------------------------------------------------

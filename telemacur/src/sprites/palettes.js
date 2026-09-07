@@ -25,6 +25,12 @@ export const PALETTE = {
   rockGrey: '#8a8a90',
   rockGreyDark: '#5c5c62',
   rockGreyDarker: '#3d3d42',
+
+  // Roccia scura riusata per gli ostacoli di quasi tutti i pianeti: molto piu' scura
+  // di qualsiasi fondale colorato, cosi' gli ostacoli restano leggibili invece di
+  // confondersi con il terreno dello stesso colore.
+  obstacleRock: '#2a211d',
+  obstacleRockDark: '#160f0d',
   moonSurface: '#9a9aa2',
 
   earthBlue: '#3a6ea5',
@@ -71,6 +77,7 @@ export const PALETTE = {
   saturnIceDark: '#9cc9d9',
   saturnRing: '#d9c79a',
   saturnRingDark: '#a99566',
+  saturnPlanetLight: '#ecdcae',
 
   neptuneBlue: '#1c3f7a',
   neptuneBlueDark: '#0f2652',
