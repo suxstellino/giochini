@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /lists/{listId} {
+      function signedIn() { return request.auth != null; }
+      function isMember() { return signedIn() && request.auth.uid in resource.data.members; }
+      function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+      function addedMembers() { return request.resource.data.members.removeAll(resource.data.members); }
+      function removedMembers() { return resource.data.members.removeAll(request.resource.data.members); }
+
+      allow read: if isMember();
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.members == [request.auth.uid];
+
+      // I membri modificano nome e prodotti, e possono uscire dalla lista.
+      allow update: if isMember()
+        && changed().hasOnly(['name', 'items', 'updatedAt', 'members'])
+        && addedMembers().size() == 0
+        && removedMembers().hasOnly([request.auth.uid]);
+
+      // Chi conosce l'id (link di invito) può aggiungere solo se stesso ai membri.
+      allow update: if signedIn()
+        && changed().hasOnly(['members'])
+        && removedMembers().size() == 0
+        && addedMembers().hasOnly([request.auth.uid]);
+
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+  }
+}
